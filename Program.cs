@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 
 class PublisherSubscriberDesignPattern 
@@ -64,7 +65,7 @@ class PublisherSubscriberDesignPattern
     #endregion
 
 
-    #region Event 2News Publisher Subscriber
+    #region Event 2  News Publisher Subscriber
     public class NewsArticle  
     {
         public string Title { get; }
@@ -121,6 +122,115 @@ class PublisherSubscriberDesignPattern
 
     #endregion
 
+    #region  Event 3 New Order 
+    public class OrderEventArguments   : EventArgs
+    {
+        public int OrderId { get; }
+        public string ClientEmail { get; }
+        public int OrderTotalPrice { get; }
+        public string ClientAddress {  get; }
+        public string OrderDetails {  get; }
+
+        public OrderEventArguments(int orderId ,string clientEmail, int orderTotalprice, string clientaddress , string orederDetails)
+        {
+            OrderId = orderId;
+            ClientEmail = clientEmail;
+            OrderTotalPrice = orderTotalprice;
+            ClientAddress = clientaddress;
+            OrderDetails = orederDetails;
+        }
+    }
+    public class Order
+    {
+        public event EventHandler<OrderEventArguments> OnOrderCreated;
+
+
+        public void Create(int orderId, string clientEmail, int orderTotalprice, string clientaddress, string orederDetails)
+        {
+            Console.WriteLine("New Order Created , New Will Notify Eveyone By Raising The Event.\n");
+
+            if (OnOrderCreated != null)
+            {
+                OnOrderCreated(this , new OrderEventArguments(orderId , clientEmail, orderTotalprice, clientaddress, orederDetails));
+            }
+        }
+    
+
+    }
+    public class EmailService
+    {
+        public void SubScribe(Order order)
+        {
+            order.OnOrderCreated += HandleNewOrder;
+        }
+        public void UnSubScribe(Order order)
+        {
+            order.OnOrderCreated -= HandleNewOrder;
+        }
+        public void HandleNewOrder(Object sender , OrderEventArguments args)
+        {
+            Console.WriteLine("--------------Email Service--------------");
+            Console.WriteLine("Email Service Object Received A New Order Event");
+            Console.WriteLine($"Order Id : {args.OrderId}");
+            Console.WriteLine($"Order Details : {args.OrderDetails}");
+            Console.WriteLine($"Client Address: {args.ClientAddress}");
+            Console.WriteLine($"Order Total Price : {args.OrderTotalPrice}");
+            Console.WriteLine($"Client Email : {args.ClientEmail}");
+            Console.WriteLine("-------------- Send Email --------------");
+            Console.WriteLine("\n----------------------------------------------\n");
+        }
+    }
+    public class SMSService
+    {
+        public void SubScribe(Order order)
+        {
+            order.OnOrderCreated += HandleNewOrder;
+        }
+        public void UnSubScribe(Order order)
+        {
+            order.OnOrderCreated -= HandleNewOrder;
+        }
+        public void HandleNewOrder(Object sender, OrderEventArguments args)
+        {
+            Console.WriteLine("--------------SMS  Service--------------");
+            Console.WriteLine("SMS Service Object Received A New Order Event");
+            Console.WriteLine($"Order Id : {args.OrderId}");
+            Console.WriteLine($"Order Details : {args.OrderDetails}");
+            Console.WriteLine($"Client Address: {args.ClientAddress}");
+            Console.WriteLine($"Order Total Price : {args.OrderTotalPrice}");
+            Console.WriteLine($"Client Email : {args.ClientEmail}");
+            Console.WriteLine("-------------- Send SMS  --------------");
+            Console.WriteLine("\n----------------------------------------------\n");
+           
+        }
+    }
+    public class ShippingService
+    {
+        public void SubScribe(Order order)
+        {
+            order.OnOrderCreated += HandleNewOrder;
+        }
+        public void UnSubScribe(Order order)
+        {
+            order.OnOrderCreated -= HandleNewOrder;
+        }
+        public void HandleNewOrder(Object sender, OrderEventArguments args)
+        {
+            Console.WriteLine("--------------Shipping Service--------------");
+            Console.WriteLine("SMS Service Object Received A New Order Event");
+            Console.WriteLine($"Order Id : {args.OrderId}");
+            Console.WriteLine($"Order Details : {args.OrderDetails}");
+            Console.WriteLine($"Client Address: {args.ClientAddress}");
+            Console.WriteLine($"Order Total Price : {args.OrderTotalPrice}");
+            Console.WriteLine($"Client Email : {args.ClientEmail}");
+            Console.WriteLine("-------------- Send Shipping --------------");
+            Console.WriteLine("\n----------------------------------------------\n");
+
+        }
+    }
+
+    #endregion
+
     #region Program Class
     public class  Program
     {
@@ -130,35 +240,56 @@ class PublisherSubscriberDesignPattern
 
             #region Example Event 1 Temperature Change
 
-            Thermostat thermostat = new Thermostat();
-            Display display = new Display();
+            //Thermostat thermostat = new Thermostat();
+            //Display display = new Display();
 
-            display.Subscribe(thermostat);
+            //display.Subscribe(thermostat);
 
-            thermostat.SetTemperature(20);
-            Console.WriteLine();
+            //thermostat.SetTemperature(20);
+            //Console.WriteLine();
 
-            thermostat.SetTemperature(30);
-            thermostat.SetTemperature(30);
-            thermostat.SetTemperature(30);
-            Console.WriteLine();
+            //thermostat.SetTemperature(30);
+            //thermostat.SetTemperature(30);
+            //thermostat.SetTemperature(30);
+            //Console.WriteLine();
 
             #endregion
 
 
             #region Example Event 2 News Publisher Subscriber
 
-            NewsPublisher publisher = new NewsPublisher();
-            NewsSubscriber subscriber1 = new NewsSubscriber("Subscriber 1");
-            NewsSubscriber subscriber2 = new NewsSubscriber("Subscriber 2");
+            //NewsPublisher publisher = new NewsPublisher();
+            //NewsSubscriber subscriber1 = new NewsSubscriber("Subscriber 1");
+            //NewsSubscriber subscriber2 = new NewsSubscriber("Subscriber 2");
 
-            subscriber1.Subscribe(publisher);
-            subscriber2.Subscribe(publisher);
+            //subscriber1.Subscribe(publisher);
+            //subscriber2.Subscribe(publisher);
 
-            publisher.NewNewsPublisher("Breakin News", "A Significant Event Just Happened !");
+            //publisher.NewNewsPublisher("Breakin News", "A Significant Event Just Happened !");
 
-            subscriber2.UnSubscribe(publisher);
-            publisher.NewNewsPublisher("Tech Update", "New Gagets Are Hitting The Market .");
+            //subscriber2.UnSubscribe(publisher);
+            //publisher.NewNewsPublisher("Tech Update", "New Gagets Are Hitting The Market .");
+
+            #endregion
+
+            #region Example Event 3 New Order
+
+            var  order = new Order();
+
+            EmailService emailService = new EmailService();
+            SMSService sMSService = new SMSService();
+            ShippingService shippingService = new ShippingService();
+
+            emailService.SubScribe(order);
+            shippingService.SubScribe(order);
+           
+
+            order.Create(1, "abderrahmane@gmail.com", 100, "259 Rue Des Capucine", "Books");
+
+            emailService.UnSubScribe(order);
+            shippingService.UnSubScribe(order);
+            sMSService.SubScribe(order);
+            order.Create(2, "ahmed@gmail.com", 50, "111 Rue Des Chataigners", "Phone , Scrin");
 
             #endregion
         }
